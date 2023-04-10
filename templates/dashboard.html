@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <h1>{{name}}</h1>
+
+    <div id="plot"></div>
+    <script>
+        var data = {{petals|tojson|safe}};
+        console.log(data);
+       
+        var trace1 = {
+        x: data.length,
+        y: data.width,
+        mode: 'markers',
+        marker: {
+            size: [40, 60, 80, 100]
+        }
+        };
+
+        var data = [trace1];
+
+        var layout = {
+        title: 'Marker Size',
+        showlegend: false,
+        height: 600,
+        width: 600
+        };
+
+        Plotly.newPlot('plot', data, layout);
+
+        console.log(data)
+
+        
+
+    </script>
+
+  
+</body>
