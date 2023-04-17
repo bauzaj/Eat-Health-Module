@@ -1,21 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width,  initial-scale = 1.0">
+    <title> Eat Healthy Dashboard </title>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <h1> My Dashboard</h1>
+
+    <h2> Prepared v FFood Visual </h2>
+    <div id="prpvffd-chart"></div>
+
+    <h2> General Health Visual </h2>
+    <div id="genhealth-chart"></div>
+
+    <h2> Eat Healthy Visual</h2>
+    <div id="eat-healthy-chart"></div>
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
-</head>
-<body>
-    <h1>Add Title</h1>
-
-
     <script>
-        d3.json('http://127.0.0.1:5000/api/v1.0/iris').then(function(data) {
-            console.log(data)
+        //Fetch data from API endpoints
+        var prpvff_data = fetch('http://127.0.0.1:5000/api/v1.0/prpvff')
+            .then(function (response) { return response.json(); });
+        var genhealth_data = fetch('http://127.0.0.1:5000/api/v1.0/genhealth')
+            .then(function (response) { return response.json(); });
+        var eat_healthy_data = fetch('http://127.0.0.1:5000/api/v1.0/eat-healthy')
+            .then(function (response) { return response.json(); });
+
+        Promise.all([prpvff_data, genhealth_data, eat_healthy_data]).then(function (data) {
+            console.log(data);
+
+            //Visual 1
+            var prpvff_trace = {
+                x: data[0].map(function (row) { return row[0]; }),
+                y: data[0].map(function (row) { return row[1]; }),
+                type: 'bar',
+                name: "PRPvFF"
+            };
+            var prpvff_layout = {
+                title: 'PRPvFF Chart'
+            };
+            Plotly.newPlot('prpvffd-chart', [prpvff_trace], prpvff_layout);
+
+            //Visual 2
+            var genhealth_trace = {
+                x: data[1].map(function (row) { return row[0]; }),
+                y: data[1].map(function (row) { return row[1]; }),
+                type: 'line',
+                name: 'Genhealth'
+            };
+            var genhealth_layout = {
+                title: 'Genhealth Chart'
+            };
+            Plotly.newPlot('genhealth-chart', [genhealth_trace], genhealth_layout);
+
+            //Visual 3
+            var eat_healthy_data = data[2];
+            var eat_healthy_trace = {
+                x: eat_healthy_data.map(function (row) { return row.x; }),
+                y: eat_healthy_data.map(function (row) { return row.y; }),
+                type: 'scatter',
+                mode: 'markers',
+                name: 'Eat Healthy'
+            };
+            var eat_healthy_layout = {
+                title: 'Eat Healthy Chart'
+            };
+            Plotly.newPlot('eat-healthy-chart', [eat_healthy_trace], eat_healthy_layout);
         });
     </script>
 </body>
+
 </html>
