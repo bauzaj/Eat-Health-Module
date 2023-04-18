@@ -1,79 +1,125 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,  initial-scale = 1.0">
+    <meta name="viewport" content="width=device-width,  initial-scale=1.0">
     <title> Eat Healthy Dashboard </title>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
     <h1> My Dashboard</h1>
 
-    <h2> Prepared v FFood Visual </h2>
-    <div id="prpvffd-chart"></div>
+    <h2> Avg BMI to General Health Visual </h2>
+    <div id="gh-chart"></div>
 
-    <h2> General Health Visual </h2>
-    <div id="genhealth-chart"></div>
+    <h2> Exercise Frequency Visual </h2>
+    <div id="exfreq-chart"></div>
 
     <h2> Eat Healthy Visual</h2>
     <div id="eat-healthy-chart"></div>
 
-    <script src="https://d3js.org/d3.v5.min.js"></script>
     <script>
         //Fetch data from API endpoints
-        var prpvff_data = fetch('http://127.0.0.1:5000/api/v1.0/prpvff')
+        var prpvff_data = fetch('http://127.0.0.1:5000/api/v1.0/prpvffd')
             .then(function (response) { return response.json(); });
         var genhealth_data = fetch('http://127.0.0.1:5000/api/v1.0/genhealth')
             .then(function (response) { return response.json(); });
-        var eat_healthy_data = fetch('http://127.0.0.1:5000/api/v1.0/eat-healthy')
+        var eat_healthy_data = fetch('http://127.0.0.1:5000/api/v1.0/is_healthy')
             .then(function (response) { return response.json(); });
 
         Promise.all([prpvff_data, genhealth_data, eat_healthy_data]).then(function (data) {
-            console.log(data);
-
+            console.log(data)
+            // console.log(data[0].map(function(row) {return row.avg_bmi}))//map(function (row) { return row[0]; })
             //Visual 1
             var prpvff_trace = {
-                x: data[0].map(function (row) { return row[0]; }),
-                y: data[0].map(function (row) { return row[1]; }),
+                x: [1, 2, 3, 4, 5],
+                y: data[1].map(function (row) { return row.avg }),
                 type: 'bar',
-                name: "PRPvFF"
+                name: "I_P_T"
             };
             var prpvff_layout = {
-                title: 'PRPvFF Chart'
+                title: 'AVG BMI Index to General Health Score',
+                xaxis: {
+                    title: 'INCOME POVERTY THRESHOLD'
+                },
+                yaxis: {
+                    title: 'AVG BMI'
+                }
             };
-            Plotly.newPlot('prpvffd-chart', [prpvff_trace], prpvff_layout);
+            Plotly.newPlot('gh-chart', [prpvff_trace], prpvff_layout);
+            console.log(data[2]);
 
             //Visual 2
             var genhealth_trace = {
-                x: data[1].map(function (row) { return row[0]; }),
-                y: data[1].map(function (row) { return row[1]; }),
+                x: [1, 2, 3, 4, 5],
+                y: data[2].map(function (row) { return row.avg_exferq; }),
                 type: 'line',
                 name: 'Genhealth'
             };
             var genhealth_layout = {
-                title: 'Genhealth Chart'
+                title: 'AVG Exercise Frequency in the Last Seven Days',
+                xaxis: {
+                    title: "GENERAL HEALTH RATING",
+                    tickvals: [1,2,3,4,5]
+                },
+                yaxis: {
+                    title: "AVG EXFERQ"
+                }
             };
-            Plotly.newPlot('genhealth-chart', [genhealth_trace], genhealth_layout);
+            Plotly.newPlot('exfreq-chart', [genhealth_trace], genhealth_layout);
 
             //Visual 3
-            var eat_healthy_data = data[2];
+            var eat_healthy_data = data[0]; // Use the first index of data array
+
+            // Convert data to heatmap format
+            var heatmapData = {};
+            eat_healthy_data.forEach(function(row) {
+                var x = row.fastfd;
+                var y = row.prpmel;
+                var z = row.avg_bmi;
+
+                if (!heatmapData[x]) {
+                    heatmapData[x] = {};
+                }
+                heatmapData[x][y] = z;
+            });
+
+            // Convert heatmap data to trace format
+            var xValues = [];
+            var yValues = [];
+            var zValues = [];
+
+            Object.keys(heatmapData).forEach(function(x) {
+                Object.keys(heatmapData[x]).forEach(function(y) {
+                    xValues.push(parseInt(x, 10));
+                    yValues.push(parseInt(y, 10));
+                    zValues.push(heatmapData[x][y]);
+                });
+            });
+
             var eat_healthy_trace = {
-                x: eat_healthy_data.map(function (row) { return row.x; }),
-                y: eat_healthy_data.map(function (row) { return row.y; }),
-                type: 'scatter',
-                mode: 'markers',
-                name: 'Eat Healthy'
+                x: xValues,
+                y: yValues,
+                z: zValues,
+                type: 'heatmap',
+                name: 'Eat Healthy',
+                colorscale: 'Viridis'
             };
+
             var eat_healthy_layout = {
-                title: 'Eat Healthy Chart'
+                title: 'Eat Healthy Chart',
+                xaxis: { title: 'Fast Food' },
+                yaxis: { title: 'Prepared Meals' }
             };
+
             Plotly.newPlot('eat-healthy-chart', [eat_healthy_trace], eat_healthy_layout);
+
         });
     </script>
 </body>
-
 </html>

@@ -1,13 +1,15 @@
 from sqlalchemy import create_engine
 from flask import Flask, render_template, jsonify
+from flask_cors import CORS
 from config import username, pw, hostname, port, db
 import pandas as pd
 
 app = Flask(__name__)
+CORS(app)
 
 engine = create_engine(f'postgresql+psycopg2://{username}:{pw}@{hostname}:{port}/{db}')
 
-@app.route('/api/v1.0/prpvff')
+@app.route('/api/v1.0/prpvffd')
 def prpvff():
     conn = engine.connect()
     query = '''SELECT income, spemch, prpmel, fastfd, AVG(bmi) as avg_bmi
@@ -26,7 +28,7 @@ def genhealth():
     df = pd.read_sql(query, conn)
     return jsonify(df.to_dict(orient='records'))
 
-@app.route('/api/v1.0/eat_healthy')
+@app.route('/api/v1.0/is_healthy')
 def eat_healthy():
     conn = engine.connect()
     query = '''SELECT genhth, AVG(exfreq) as avg_exferq
@@ -36,12 +38,12 @@ def eat_healthy():
     df = pd.read_sql(query, conn)
     return jsonify(df.to_dict(orient='records'))
 
-@app.route('/index')
+@app.route('/')
 def index():
-    prpvff_data = pd.read_json('http://127.0.0.1:5000/api/v1.0/prpvff')
+    prpvff_data = pd.read_json('http://127.0.0.1:5000/api/v1.0/prpvffd')
     genhealth_data = pd.read_json('http://127.0.0.1:5000/api/v1.0/genhealth')
-    eat_healthy_data = pd.read_json('http://127.0.0.1:5000/api/v1.0/eat_healthy')
-
+    eat_healthy_data = pd.read_json('http://127.0.0.1:5000/api/v1.0/is_healthy')
+#   Convert data into lists
     prpvff_column_names = prpvff_data.columns.tolist()
     prpvff_data = prpvff_data.values.tolist()
     genhealth_column_names = genhealth_data.columns.tolist()
