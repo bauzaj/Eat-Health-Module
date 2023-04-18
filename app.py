@@ -32,9 +32,11 @@ def genhealth():
 def eat_healthy():
     conn = engine.connect()
     query = '''SELECT genhth, AVG(exfreq) as avg_exferq
-               FROM resp r
+               FROM resp
                WHERE genhth >=1 AND exfreq >= 1
-            GROUP BY genhth;'''
+               GROUP BY genhth
+               ORDER BY genhth ASC;
+               '''
     df = pd.read_sql(query, conn)
     return jsonify(df.to_dict(orient='records'))
 
