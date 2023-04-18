@@ -23,7 +23,17 @@
     <h2> Eat Healthy Visual</h2>
     <div id="eat-healthy-chart"></div>
 
-    
+    <h3>Select Income Group</h3>
+<select id="income-dropdown">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+</select>
+
+
+
 
     <script>
         //Fetch data from API endpoints
@@ -48,7 +58,7 @@
 
             var prpvff_trace = {
                 x: [1, 2, 3, 4, 5],
-                y: data[1].map(function(row) { return row.avg; }),
+                y: data[1].map(function (row) { return row.avg; }),
                 type: 'bar',
                 name: 'PRPvFF',
                 hovertemplate: 'GENERAL HEALTH : %{x}<br>AVG BMI: %{y:.2f}', // Custom hover text
@@ -70,7 +80,7 @@
 
             console.log(data[2]);
 
-          // Visual 2
+            // Visual 2
             var healthLabels = {
                 1: 'Excellent',
                 2: 'Very good',
@@ -81,12 +91,12 @@
 
             var genhealth_trace = {
                 x: [1, 2, 3, 4, 5],
-                y: data[2].map(function(row) { return row.avg_exferq; }),
+                y: data[2].map(function (row) { return row.avg_exferq; }),
                 mode: 'lines+markers',
                 type: 'scatter',
                 name: 'Genhealth',
                 hovertemplate: '%{text}<br>AVG EXFERQ: %{y}', // Custom hover text
-                text: data[2].map(function(row) {
+                text: data[2].map(function (row) {
                     return (
                         healthLabels[row.genhth] +
                         ': ' +
@@ -113,85 +123,104 @@
 
 
 
-            //Visual 3
+            // Visual 3
             var eat_healthy_data = data[0]; // Use the first index of data array
 
-            // Convert data to 3D heatmap format
-            var heatmapData = {};
-            eat_healthy_data.forEach(function(row) {
-                var x = row.fastfd;
-                var y = row.prpmel;
-                var z = row.income;
-                var val = row.avg_bmi;
+    
+            // Event listener for income group dropdown
+            var incomeDropdown = document.getElementById('income-dropdown');
+            incomeDropdown.addEventListener('change', function (event) {
+                var selectedIncome = parseInt(event.target.value);
+                
 
-                if (!heatmapData[x]) {
-                    heatmapData[x] = {};
-                }
-                if (!heatmapData[x][y]) {
-                    heatmapData[x][y] = {};
-                }
-                heatmapData[x][y][z] = val;
+                var chartContainer = document.getElementById('eat-healthy-chart');
+                chartContainer.innerHTML = '';
+                var eat_healthy_trace = create3DTrace(eat_healthy_data, selectedIncome);
+                Plotly.newPlot('eat-healthy-chart', [eat_healthy_trace], eat_healthy_layout);
             });
 
-            // Convert heatmap data to 3D scatter trace format
-            var xValues = [];
-            var yValues = [];
-            var zValues = [];
-            var markerValues = [];
+            // Function to create the 3D trace for the selected income group
+            function create3DTrace(data, income) {
+                // Filter the data by the selected income group
+                var filteredData = data.filter(function (row) { return row.income === income; });
 
-            Object.keys(heatmapData).forEach(function(x) {
-                Object.keys(heatmapData[x]).forEach(function(y) {
-                    Object.keys(heatmapData[x][y]).forEach(function(z) {
-                        xValues.push(parseInt(x, 10));
-                        yValues.push(parseInt(y, 10));
-                        zValues.push(parseInt(z, 10));
-                        markerValues.push(heatmapData[x][y][z]);
-                    });
+                // Convert data to 3D heatmap format
+                var heatmapData = {};
+                filteredData.forEach(function (row) {
+                    var x = row.fastfd;
+                    var y = row.prpmel;
+                    var z = row.income;
+                    var val = row.avg_bmi;
+
+                    if (!heatmapData[x]) {
+                        heatmapData[x] = {};
+                    }
+                    if (!heatmapData[x][y]) {
+                        heatmapData[x][y] = {};
+                    }
+                    heatmapData[x][y][z] = val;
                 });
-            });
-
-            var eat_healthy_trace = {
-                x: xValues,
-                y: yValues,
-                z: zValues,
-                mode: 'markers+text',
-                type: 'scatter3d',
-                name: 'Eat Healthy',
-                marker: {
-                    size: 6,
-                    color: markerValues,
-                    colorscale: 'Viridis',
-                    showscale: true,
-                    colorbar: {
-                        title: 'Avg BMI'
-                    }
-                }
-            };
-
-            var eat_healthy_layout = {
-                title: 'Eat Healthy 3D Chart',
-                scene: {
-                    xaxis: { 
-                        title: 'Fast Food',
-                        tickvals: [1, 2] 
-                    },
-                    yaxis: { 
-                        title: 'Prepared Meals',
-                        tickvals:[1, 2, 3] 
-                    },
-                    zaxis: { 
-                        title: 'Income',
-                        tickvals: [1, 2, 3, 4, 5] 
-                    }
-                },
-                width: 1500, //Set the width of the chart
-                height: 1500 //Set the height of the chart
-            };
-
-            Plotly.newPlot('eat-healthy-chart', [eat_healthy_trace], eat_healthy_layout);
 
 
-        });
+                    // Convert heatmap data to 3D scatter trace format
+                    var xValues = [];
+                    var yValues = [];
+                    var zValues = [];
+                    var markerValues = [];
+
+                    Object.keys(heatmapData).forEach(function (x) {
+                        Object.keys(heatmapData[x]).forEach(function (y) {
+                            Object.keys(heatmapData[x][y]).forEach(function (z) {
+                                xValues.push(parseInt(x, 10));
+                                yValues.push(parseInt(y, 10));
+                                zValues.push(parseInt(z, 10));
+                                markerValues.push(heatmapData[x][y][z]);
+                            });
+                        });
+                    });
+
+
+
+                    var eat_healthy_trace = {
+                        x: xValues,
+                        y: yValues,
+                        z: zValues,
+                        mode: 'markers',
+                        type: 'scatter3d',
+                        name: 'Eat Healthy',
+                        marker: {
+                            size: 6,
+                            color: markerValues,
+                            colorscale: 'Viridis',
+                            showscale: true,
+                            colorbar: {
+                                title: 'Avg BMI'
+                            }
+                        }
+                    };
+
+                    var eat_healthy_layout = {
+                        title: 'Eat Healthy 3D Chart',
+                        scene: {
+                            xaxis: {
+                                title: 'Fast Food',
+                                tickvals: [1, 2]
+                            },
+                            yaxis: {
+                                title: 'Prepared Meals',
+                                tickvals: [1, 2, 3]
+                            },
+                            zaxis: {
+                                title: 'Income',
+                                tickvals: [1, 2, 3, 4, 5]
+                            }
+                        },
+                        width: 1500, //Set the width of the chart
+                        height: 1500 //Set the height of the chart
+                    };
+
+                    Plotly.newPlot('eat-healthy-chart', [eat_healthy_trace], eat_healthy_layout);
+        }});
     </script>
 </body>
 </html>
