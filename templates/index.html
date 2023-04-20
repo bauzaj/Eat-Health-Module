@@ -20,11 +20,8 @@
     <h2> Exercise Frequency Visual </h2>
     <div id="exfreq-chart"></div>
 
-    <h2> Eat Healthy Visual</h2>
-    <div id="eat-healthy-chart"></div>
-
     <h3>Select Income Group</h3>
-<select id="income-dropdown">
+    <select id="income-dropdown">    
     <option value="1">1</option>
     <option value="2">2</option>
     <option value="3">3</option>
@@ -32,7 +29,8 @@
     <option value="5">5</option>
 </select>
 
-
+    <h2> Eat Healthy Visual</h2>
+    <div id="eat-healthy-chart"></div>
 
 
     <script>
@@ -215,8 +213,8 @@
                                 tickvals: [1, 2, 3, 4, 5]
                             }
                         },
-                        width: 1500, //Set the width of the chart
-                        height: 1500 //Set the height of the chart
+                        width: 800, //Set the width of the chart
+                        height: 800 //Set the height of the chart
                     };
 
                     Plotly.newPlot('eat-healthy-chart', [eat_healthy_trace], eat_healthy_layout);
